@@ -19,9 +19,18 @@ export default {
 				})
 			}
 			let debug = url.searchParams.has('debug');
+			let prefix = url.searchParams.get('prefix');
+			let suffix = url.searchParams.get('suffix');
 			if (filters.length == 0) return new Response(ics);
 			for (let line of calendar) {
 				if (Array.isArray(line)) {
+					if (prefix || suffix) {
+						let summary = line.find(l => l.key == 'SUMMARY');
+						let value = summary.value;
+						if (prefix) value = prefix + value;
+						if (suffix) value = value + suffix;
+						summary.text = summary.key + ':' + value;
+					}
 					let skip = false;
 					let event = Object.fromEntries(line.map((l) => [l.key.toLowerCase(), l.value.toLowerCase()]));
 					for(let filter of filters) {
