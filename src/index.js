@@ -18,6 +18,7 @@ export default {
 					value: value.toLowerCase(),
 				})
 			}
+			let debug = url.searchParams.has('debug');
 			if (filters.length == 0) return new Response(ics);
 			for (let line of calendar) {
 				if (Array.isArray(line)) {
@@ -36,10 +37,15 @@ export default {
 						}
 						if (skip) break;
 					}
-					if (!skip) filteredCalendar.push(line);
-				} else {
-					filteredCalendar.push(line);
+					if (skip) {
+						if (debug) {
+							line = line.map(l => ({ ...l, text: 'X-' + l.text }));
+						} else {
+							continue;
+						}
+					}
 				}
+				filteredCalendar.push(line);
 			}
 			let filteredICS = filteredCalendar.flat().map((l) => l.text).join('\n');
 			return new Response(filteredICS);
